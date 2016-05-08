@@ -4,5 +4,6 @@
     <dimen name="activity_vertical_margin">16dp</dimen>
 
     <!-- Font sizes -->
-    <dimen name="font_size_title">22sp</dimen>
+    <dimen name="font_size_title">24sp</dimen>
+    <dimen name="font_size_normal">20sp</dimen>
 </resources>

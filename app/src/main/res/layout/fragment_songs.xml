@@ -1,15 +1,27 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context="com.youtube.sorcjc.lyricstraining.ui.SongsFragment">
 
     <TextView
         android:id="@+id/tvTitle"
-        android:textSize="@dimen/font_size_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:layout_marginBottom="6dp"
+        android:gravity="center"
+        android:text="@string/fragment_songs_title"
+        android:textSize="@dimen/font_size_title" />
+
+    <!-- 0 height and 1 weight is really nice -->
+    <TextView
+        android:id="@+id/tvBody"
         android:gravity="center"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
-
-</FrameLayout>
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:text="Canciones"
+        android:textSize="@dimen/font_size_normal" />
+</LinearLayout>

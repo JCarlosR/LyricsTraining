@@ -40,10 +40,8 @@ public class MainActivity extends AppCompatActivity implements SongsFragment.OnF
         setSupportActionBar(toolbar);
 
         viewPager = (ViewPager) findViewById(R.id.viewpager);
-        setupViewPager(viewPager);
 
         tabLayout = (TabLayout) findViewById(R.id.tabs);
-        tabLayout.setupWithViewPager(viewPager);
 
         genresRequest();
     }
@@ -61,6 +59,7 @@ public class MainActivity extends AppCompatActivity implements SongsFragment.OnF
                 if (response != null) {
                     ArrayList<Genre> genres = response.body().getGenres();
                     Log.d("Test/Main", "Cantidad de géneros obtenidos => " + genres.size());
+                    setupViewPager(genres);
                 }
             }
 
@@ -73,24 +72,16 @@ public class MainActivity extends AppCompatActivity implements SongsFragment.OnF
         });
     }
 
-    private void setupViewPager(ViewPager viewPager) {
+    private void setupViewPager(ArrayList<Genre> genres) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
 
-        // Temporary data
-        ArrayList<String> genres = new ArrayList();
-        genres.add("Pop");
-        genres.add("Rock");
-        genres.add("HipHop");
-        genres.add("Metal");
-        genres.add("Soul");
-        genres.add("Jazz");
-
         // Add each genre like a fragment
-        for (String genre : genres) {
-            adapter.addFrag(SongsFragment.newInstance("Musical genre: " + genre, "Other param"), genre);
+        for (Genre genre : genres) {
+            adapter.addFrag(SongsFragment.newInstance(genre.getName(), genre.getId()), genre.toString());
         }
 
         viewPager.setAdapter(adapter);
+        tabLayout.setupWithViewPager(viewPager);
     }
 
     @Override

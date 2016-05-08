@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name">LyricsTraining</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="fragment_songs_title">Género musical</string>
 </resources>

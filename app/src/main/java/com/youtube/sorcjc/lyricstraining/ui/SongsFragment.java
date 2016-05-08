@@ -4,12 +4,26 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.youtube.sorcjc.lyricstraining.R;
+import com.youtube.sorcjc.lyricstraining.domain.Genre;
+import com.youtube.sorcjc.lyricstraining.domain.Song;
+import com.youtube.sorcjc.lyricstraining.io.LyricsTrainingApiAdapter;
+import com.youtube.sorcjc.lyricstraining.io.responses.GenresResponse;
+import com.youtube.sorcjc.lyricstraining.io.responses.SongsResponse;
+
+import java.util.ArrayList;
+
+import retrofit.Call;
+import retrofit.Callback;
+import retrofit.Response;
+import retrofit.Retrofit;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -20,14 +34,15 @@ import com.youtube.sorcjc.lyricstraining.R;
  * create an instance of this fragment.
  */
 public class SongsFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    private static final String ARG_GENRE_NAME = "genreName";
+    private static final String ARG_GENRE_ID = "genreId";
+
+    private String mGenreName;
+    private int mGenreId;
+
+    // UI components
+    private TextView tvTitle, tvBody;
 
     private OnFragmentInteractionListener mListener;
 
@@ -40,15 +55,15 @@ public class SongsFragment extends Fragment {
      * this fragment using the provided parameters.
      *
      * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
+     * @param genreId Parameter 2.
      * @return A new instance of fragment SongsFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static SongsFragment newInstance(String param1, String param2) {
+    public static SongsFragment newInstance(String param1, int genreId) {
         SongsFragment fragment = new SongsFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
+        args.putString(ARG_GENRE_NAME, param1);
+        args.putInt(ARG_GENRE_ID, genreId);
         fragment.setArguments(args);
         return fragment;
     }
@@ -57,9 +72,42 @@ public class SongsFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+            mGenreName = getArguments().getString(ARG_GENRE_NAME);
+            mGenreId = getArguments().getInt(ARG_GENRE_ID);
         }
+
+        // Load songs from webservice
+        Call<SongsResponse> call = LyricsTrainingApiAdapter.getApiService().getSongsResponse(mGenreId);
+
+        // Async callback
+        call.enqueue(new Callback<SongsResponse>() {
+            @Override
+            public void onResponse(Response<SongsResponse> response, Retrofit retrofit) {
+                if (response != null) {
+                    ArrayList<Song> songs = response.body().getSongs();
+
+                    if (songs == null) {
+                        Log.d("Test/Main", "No se encontraron canciones en el género " + mGenreName + " (" + mGenreId + ")");
+                        return;
+                    }
+
+                    Log.d("Test/Main", "Cantidad de canciones " + mGenreName + " => " + songs.size());
+
+                    String songsList = "";
+                    for (Song song : songs) {
+                        songsList += song+"\n";
+                    }
+
+                    tvBody.setText(songsList);
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                Toast.makeText(getActivity(), t.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+            }
+
+        });
     }
 
     @Override
@@ -69,8 +117,10 @@ public class SongsFragment extends Fragment {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_songs, container, false);
 
-        TextView textView = (TextView) v.findViewById(R.id.tvTitle);
-        textView.setText(mParam1);
+        tvTitle = (TextView) v.findViewById(R.id.tvTitle);
+        tvTitle.setText("Musical genre: " + mGenreName);
+
+        tvBody = (TextView) v.findViewById(R.id.tvBody);
 
         return v;
     }

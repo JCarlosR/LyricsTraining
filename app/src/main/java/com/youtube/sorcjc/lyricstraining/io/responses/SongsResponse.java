@@ -7,7 +7,7 @@ import java.util.ArrayList;
 
 public class SongsResponse {
 
-    @SerializedName("genres")
+    @SerializedName("songs")
     private ArrayList<Song> songs;
 
     public ArrayList<Song> getSongs() {
