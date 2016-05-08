@@ -6,6 +6,8 @@
 
     <TextView
         android:id="@+id/tvTitle"
+        android:textSize="@dimen/font_size_title"
+        android:gravity="center"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:text="@string/hello_blank_fragment" />

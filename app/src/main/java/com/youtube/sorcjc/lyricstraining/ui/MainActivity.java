@@ -27,8 +27,7 @@ public class MainActivity extends AppCompatActivity implements SongsFragment.OnF
         setContentView(R.layout.activity_main);
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
-        // setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        setSupportActionBar(toolbar);
 
         viewPager = (ViewPager) findViewById(R.id.viewpager);
         setupViewPager(viewPager);
@@ -39,22 +38,27 @@ public class MainActivity extends AppCompatActivity implements SongsFragment.OnF
 
     private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
-        adapter.addFrag(SongsFragment.newInstance("UNO", "XD"), "ONE");
-        adapter.addFrag(SongsFragment.newInstance("DOS", "XD"), "TWO");
-        adapter.addFrag(SongsFragment.newInstance("TRES", "XD"), "THREE");
-        adapter.addFrag(SongsFragment.newInstance("CUATRO", "XD"), "FOUR");
-        adapter.addFrag(SongsFragment.newInstance("CINCO", "XD"), "FIVE");
-        adapter.addFrag(SongsFragment.newInstance("SEIS", "XD"), "SIX");
-        adapter.addFrag(SongsFragment.newInstance("SIETE", "XD"), "SEVEN");
-        adapter.addFrag(SongsFragment.newInstance("OCHO", "XD"), "EIGHT");
-        adapter.addFrag(SongsFragment.newInstance("NUEVE", "XD"), "NINE");
-        adapter.addFrag(SongsFragment.newInstance("DIEZ", "XD"), "TEN");
+
+        // Temporary data
+        ArrayList<String> genres = new ArrayList();
+        genres.add("Pop");
+        genres.add("Rock");
+        genres.add("HipHop");
+        genres.add("Metal");
+        genres.add("Soul");
+        genres.add("Jazz");
+
+        // Add each genre like a fragment
+        for (String genre : genres) {
+            adapter.addFrag(SongsFragment.newInstance("Musical genre: " + genre, "Other param"), genre);
+        }
+
         viewPager.setAdapter(adapter);
     }
 
     @Override
     public void onFragmentInteraction(Uri uri) {
-        
+
     }
 
     class ViewPagerAdapter extends FragmentPagerAdapter {
