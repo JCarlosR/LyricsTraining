@@ -12,6 +12,8 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.youtube.sorcjc.lyricstraining.domain.Song;
+
 import java.lang.reflect.Array;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -61,46 +63,35 @@ public class BaseDatos{
 		sqLiteBaseDatos.close();
 	}
 	
-	public void insertUsuario(String usu_usuario,String usu_clave){
+	public void insertGeneros(int id, String nombre){
 		SQLiteDatabase sqLiteBaseDatos = contexto.openOrCreateDatabase(DATABASE_NAME,	Context.MODE_PRIVATE, null);
 		ContentValues fila = new ContentValues();
-		fila.put("usuario", usu_usuario);
-		fila.put("clave", usu_clave);
-		sqLiteBaseDatos.insert("USUARIO", null, fila);
-		sqLiteBaseDatos.close();
-	}
-
-	public void insertEmpresa(int id,String codigo,String nombre){
-		SQLiteDatabase sqLiteBaseDatos = contexto.openOrCreateDatabase(DATABASE_NAME,	Context.MODE_PRIVATE, null);
-		ContentValues fila = new ContentValues();
-		fila.put("idEmpresa", id);
-		fila.put("codigo", codigo);
-		fila.put("descripcion", nombre);
-		sqLiteBaseDatos.insert("GREMPRESA", null, fila);
-		sqLiteBaseDatos.close();
-	}
-
-	public void insertClientes(int idc,int ide,String nombre,String apellido,String direccion,String dni,String email,String cargoEmpresa){
-		SQLiteDatabase sqLiteBaseDatos = contexto.openOrCreateDatabase(DATABASE_NAME,	Context.MODE_PRIVATE, null);
-		ContentValues fila = new ContentValues();
-		fila.put("idCliente", idc);
-		fila.put("idEmpresa", ide);
+		fila.put("idgenre", id);
 		fila.put("nombre", nombre);
-		fila.put("apellido", apellido);
-		fila.put("direccion", direccion);
-		fila.put("dni", dni);
-		fila.put("email", email);
-		fila.put("cargoEmpresa", cargoEmpresa);
-		sqLiteBaseDatos.insert("GRCLIENTE", null, fila);
+		fila.put("canciones", nombre);
+		sqLiteBaseDatos.insert("GENRES", null, fila);
 		sqLiteBaseDatos.close();
 	}
 
-	public void insertFotoEmpresa(int idFE,String idE,String nombre){
+	public void insertCanciones(int idsong,String nombre,int idgenre,String archivo){
 		SQLiteDatabase sqLiteBaseDatos = contexto.openOrCreateDatabase(DATABASE_NAME,	Context.MODE_PRIVATE, null);
 		ContentValues fila = new ContentValues();
-		fila.put("idFotoEmpresa", idFE);
-		fila.put("idEmpresa", idE);
-		sqLiteBaseDatos.insert("GREMPRESA", null, fila);
+		fila.put("idsong", idsong);
+		fila.put("nombre", nombre);
+		fila.put("idgenre", nombre);
+		fila.put("archivo", archivo);
+		sqLiteBaseDatos.insert("SONGS", null, fila);
+		sqLiteBaseDatos.close();
+	}
+
+	public void insertLetras(int ids,String letra,String nombre,String apellido){
+		SQLiteDatabase sqLiteBaseDatos = contexto.openOrCreateDatabase(DATABASE_NAME,	Context.MODE_PRIVATE, null);
+		ContentValues fila = new ContentValues();
+		fila.put("idsong", ids);
+		fila.put("letra", letra);
+		fila.put("time1", nombre);
+		fila.put("time2", apellido);
+		sqLiteBaseDatos.insert("LYRICS", null, fila);
 		sqLiteBaseDatos.close();
 	}
 
@@ -113,40 +104,31 @@ public class BaseDatos{
 		
 		sqLiteBaseDatos.close();
 	}
-	/*public ArrayList<FotoEmpresaEN> listAllEmpresas(){
+	public ArrayList<Song> listAllCanciones(){
 		SQLiteDatabase sqLiteBaseDatos = contexto.openOrCreateDatabase(DATABASE_NAME, Context.MODE_PRIVATE, null);
-		String [] resultados = new String[]{"idEmpresa","codigo","descripcion"};
+		String [] resultados = new String[]{"idsong","nombre","archivo"};
+		Cursor todasFilas = sqLiteBaseDatos.query("SONGS", resultados, null, null, null, null, null,null);
 
-		String respuesta = "";
-		
-		Cursor todasFilas = sqLiteBaseDatos.query("GREMPRESA", resultados, null, null, null, null, null,null);
-		
-		Integer ccod = todasFilas.getColumnIndex("codigo");
-		Integer cdesc = todasFilas.getColumnIndex("descripcion");
+		Integer cids = todasFilas.getColumnIndex("idsong");
+		Integer cnom = todasFilas.getColumnIndex("nombre");
+		Integer carc = todasFilas.getColumnIndex("archivo");
 
-		FotoEmpresaEN temporalFotoEmpresa = new FotoEmpresaEN();
-		EmpresaEN temporalEmpresa = new EmpresaEN();
-		ArrayList<FotoEmpresaEN> arrlstFotoEmpresa= new ArrayList<FotoEmpresaEN>();;
+		Song tempSong = new Song();
+		ArrayList<Song> arrlstSong= new ArrayList<Song>();;
 
 		if (todasFilas.moveToFirst()){
 			do {
-				//respuesta +=todasFilas.getString(cindex)+",";
-					temporalFotoEmpresa = new FotoEmpresaEN();
-					temporalEmpresa = new EmpresaEN();
-
-					temporalEmpresa.setCodigo(todasFilas.getString(ccod));
-					temporalEmpresa.setDescripcion(todasFilas.getString(cdesc));
-					temporalFotoEmpresa.setEmpresa(temporalEmpresa);
-
-				arrlstFotoEmpresa.add(temporalFotoEmpresa);
-
+				tempSong = new Song();
+					tempSong.setId(Integer.parseInt(todasFilas.getString(cids)));
+					tempSong.setArchivo(todasFilas.getString(carc));
+					tempSong.setName(todasFilas.getString(cnom));
+				arrlstSong.add(tempSong);
 			}while(todasFilas.moveToNext());
 		}
-		
 		sqLiteBaseDatos.close();
-		return arrlstFotoEmpresa;
-
+		return arrlstSong;
 	}
+	/*
 
 	public ArrayList<FotoEmpresaEN> findEmpresas(String part){
 		SQLiteDatabase sqLiteBaseDatos = contexto.openOrCreateDatabase(DATABASE_NAME, Context.MODE_PRIVATE, null);

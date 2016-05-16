@@ -11,6 +11,9 @@ public class Song {
     @SerializedName("name")
     private String name;
 
+    @SerializedName("archivo")
+    private String archivo;
+
     public int getId() {
         return id;
     }
@@ -25,6 +28,14 @@ public class Song {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getArchivo() {
+        return archivo;
+    }
+
+    public void setArchivo(String archivo) {
+        this.archivo = archivo;
     }
 
     @Override
