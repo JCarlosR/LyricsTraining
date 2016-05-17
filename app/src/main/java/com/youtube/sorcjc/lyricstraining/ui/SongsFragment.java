@@ -12,10 +12,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.youtube.sorcjc.lyricstraining.R;
-import com.youtube.sorcjc.lyricstraining.domain.Genre;
 import com.youtube.sorcjc.lyricstraining.domain.Song;
 import com.youtube.sorcjc.lyricstraining.io.LyricsTrainingApiAdapter;
-import com.youtube.sorcjc.lyricstraining.io.responses.GenresResponse;
 import com.youtube.sorcjc.lyricstraining.io.responses.SongsResponse;
 
 import java.util.ArrayList;
@@ -44,6 +42,9 @@ public class SongsFragment extends Fragment {
     // UI components
     private TextView tvTitle, tvBody;
 
+    // Temporary data
+    private ArrayList<Song> songs;
+
     private OnFragmentInteractionListener mListener;
 
     public SongsFragment() {
@@ -71,43 +72,12 @@ public class SongsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         if (getArguments() != null) {
             mGenreName = getArguments().getString(ARG_GENRE_NAME);
             mGenreId = getArguments().getInt(ARG_GENRE_ID);
         }
 
-        // Load songs from webservice
-        Call<SongsResponse> call = LyricsTrainingApiAdapter.getApiService().getSongsResponse(mGenreId);
-
-        // Async callback
-        call.enqueue(new Callback<SongsResponse>() {
-            @Override
-            public void onResponse(Response<SongsResponse> response, Retrofit retrofit) {
-                if (response != null) {
-                    ArrayList<Song> songs = response.body().getSongs();
-
-                    if (songs == null) {
-                        Log.d("Test/Main", "No se encontraron canciones en el género " + mGenreName + " (" + mGenreId + ")");
-                        return;
-                    }
-
-                    Log.d("Test/Main", "Cantidad de canciones " + mGenreName + " => " + songs.size());
-
-                    String songsList = "";
-                    for (Song song : songs) {
-                        songsList += song+"\n";
-                    }
-
-                    tvBody.setText(songsList);
-                }
-            }
-
-            @Override
-            public void onFailure(Throwable t) {
-                Toast.makeText(getActivity(), t.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-            }
-
-        });
     }
 
     @Override
@@ -122,7 +92,44 @@ public class SongsFragment extends Fragment {
 
         tvBody = (TextView) v.findViewById(R.id.tvBody);
 
+        // Load songs from webservice
+        loadSongs();
+
         return v;
+    }
+
+    public void loadSongs() {
+        // Perform a request
+        Call<SongsResponse> call = LyricsTrainingApiAdapter.getApiService().getSongsResponse(mGenreId);
+
+        // Async callback
+        call.enqueue(new Callback<SongsResponse>() {
+            @Override
+            public void onResponse(Response<SongsResponse> response, Retrofit retrofit) {
+                if (response != null) {
+                    songs = response.body().getSongs();
+
+                    if (songs == null) {
+                        Log.d("Test/SongsFragment", "No se encontraron canciones en el género " + mGenreName + " (" + mGenreId + ")");
+                        return;
+                    }
+
+                    Log.d("Test/SongsFragment", "Cantidad de canciones " + mGenreName + " => " + songs.size());
+
+                    String songsList = "";
+                    for (Song song : songs) {
+                        songsList += song+"\n";
+                    }
+                    tvBody.setText(songsList);
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                Toast.makeText(getActivity(), t.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+            }
+
+        });
     }
 
     // TODO: Rename method, update argument and hook method into UI event
