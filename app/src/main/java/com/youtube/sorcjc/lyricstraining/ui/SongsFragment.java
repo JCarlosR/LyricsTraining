@@ -4,6 +4,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +16,7 @@ import com.youtube.sorcjc.lyricstraining.R;
 import com.youtube.sorcjc.lyricstraining.domain.Song;
 import com.youtube.sorcjc.lyricstraining.io.LyricsTrainingApiAdapter;
 import com.youtube.sorcjc.lyricstraining.io.responses.SongsResponse;
+import com.youtube.sorcjc.lyricstraining.ui.adapters.SongAdapter;
 
 import java.util.ArrayList;
 
@@ -40,10 +42,11 @@ public class SongsFragment extends Fragment {
     private int mGenreId;
 
     // UI components
-    private TextView tvTitle, tvBody;
+    private TextView tvTitle;
 
-    // Temporary data
+    // External data
     private ArrayList<Song> songs;
+    private SongAdapter songAdapter;
 
     private OnFragmentInteractionListener mListener;
 
@@ -62,10 +65,12 @@ public class SongsFragment extends Fragment {
     // TODO: Rename and change types and number of parameters
     public static SongsFragment newInstance(String param1, int genreId) {
         SongsFragment fragment = new SongsFragment();
+
         Bundle args = new Bundle();
         args.putString(ARG_GENRE_NAME, param1);
         args.putInt(ARG_GENRE_ID, genreId);
         fragment.setArguments(args);
+
         return fragment;
     }
 
@@ -78,6 +83,7 @@ public class SongsFragment extends Fragment {
             mGenreId = getArguments().getInt(ARG_GENRE_ID);
         }
 
+        songAdapter = new SongAdapter(getActivity());
     }
 
     @Override
@@ -90,7 +96,9 @@ public class SongsFragment extends Fragment {
         tvTitle = (TextView) v.findViewById(R.id.tvTitle);
         tvTitle.setText("Musical genre: " + mGenreName);
 
-        tvBody = (TextView) v.findViewById(R.id.tvBody);
+        // Associate the recycler view with the adapter
+        RecyclerView recyclerView = (RecyclerView) v.findViewById(R.id.recyclerView);
+        recyclerView.setAdapter(songAdapter);
 
         // Load songs from webservice
         loadSongs();
@@ -116,11 +124,7 @@ public class SongsFragment extends Fragment {
 
                     Log.d("Test/SongsFragment", "Cantidad de canciones " + mGenreName + " => " + songs.size());
 
-                    String songsList = "";
-                    for (Song song : songs) {
-                        songsList += song+"\n";
-                    }
-                    tvBody.setText(songsList);
+                    songAdapter.setAll(songs);
                 }
             }
 

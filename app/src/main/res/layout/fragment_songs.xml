@@ -16,12 +16,12 @@
         android:textSize="@dimen/font_size_title" />
 
     <!-- 0 height and 1 weight is really nice -->
-    <TextView
-        android:id="@+id/tvBody"
-        android:gravity="center"
-        android:layout_width="match_parent"
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recyclerView"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:text="Cargando ..."
-        android:textSize="@dimen/font_size_normal" />
+        android:layout_width="match_parent"
+        android:background="@color/colorAccent"
+        android:paddingBottom="63dp"
+        android:clipToPadding="false" />
 </LinearLayout>
