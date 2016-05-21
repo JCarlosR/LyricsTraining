@@ -4,6 +4,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -98,12 +99,18 @@ public class SongsFragment extends Fragment {
 
         // Associate the recycler view with the adapter
         RecyclerView recyclerView = (RecyclerView) v.findViewById(R.id.recyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.setAdapter(songAdapter);
+
+        return v;
+    }
+
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
         // Load songs from webservice
         loadSongs();
-
-        return v;
     }
 
     public void loadSongs() {

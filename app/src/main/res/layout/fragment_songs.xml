@@ -21,7 +21,6 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:layout_width="match_parent"
-        android:background="@color/colorAccent"
-        android:paddingBottom="63dp"
+        android:paddingBottom="12dp"
         android:clipToPadding="false" />
 </LinearLayout>

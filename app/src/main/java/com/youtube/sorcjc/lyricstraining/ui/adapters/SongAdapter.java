@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,12 +18,12 @@ import java.util.ArrayList;
 
 public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder> {
 
-    private ArrayList<Song> Songs;
+    private ArrayList<Song> songs;
     private Context context;
 
     public SongAdapter(Context context) {
         this.context = context;
-        this.Songs = new ArrayList<>();
+        this.songs = new ArrayList<>();
     }
 
     @Override
@@ -33,20 +34,22 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
 
     @Override
     public void onBindViewHolder(SongViewHolder holder, int position) {
-        Song Song = Songs.get(position);
+        Song song = songs.get(position);
 
-        holder.setName(Song.getName());
+        holder.setName(song.getName());
         holder.setAuthor("Sora Amamiya");
         holder.setDuration("2:54");
     }
 
     @Override
     public int getItemCount() {
-        return Songs.size();
+        return songs.size();
     }
 
-    public void setAll(@NonNull ArrayList<Song> Songs) {
-        this.Songs = Songs;
+    public void setAll(@NonNull ArrayList<Song> songs) {
+        Log.d("Test/SongAdapter", "setAll fired !");
+        this.songs.clear();
+        this.songs.addAll(songs);
         notifyDataSetChanged();
     }
 
