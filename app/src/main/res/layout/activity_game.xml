@@ -8,10 +8,11 @@
     tools:context="com.youtube.sorcjc.lyricstraining.ui.GameActivity">
 
     <TextView
+        android:id="@+id/tvName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:text="Nombre de la canción"
+        android:text="@string/song_name_placeholder"
         android:layout_marginBottom="18dp"
         android:textSize="@dimen/font_size_title"/>
 
@@ -21,5 +22,13 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:src="@drawable/play_sound"/>
+
+    <TextView
+        android:id="@+id/tvStatus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="@string/status_placeholder"
+        android:textSize="@dimen/font_size_normal"/>
 
 </LinearLayout>

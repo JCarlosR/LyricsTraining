@@ -11,8 +11,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
 import com.youtube.sorcjc.lyricstraining.R;
 import com.youtube.sorcjc.lyricstraining.domain.Song;
+import com.youtube.sorcjc.lyricstraining.ui.GameActivity;
 
 import java.util.ArrayList;
 
@@ -34,11 +36,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
 
     @Override
     public void onBindViewHolder(SongViewHolder holder, int position) {
-        Song song = songs.get(position);
-
-        holder.setName(song.getName());
-        holder.setAuthor("Sora Amamiya");
-        holder.setDuration("2:54");
+        holder.setData( songs.get(position) );
     }
 
     @Override
@@ -58,6 +56,9 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
         private TextView tvAuthor;
         private TextView tvDuration;
 
+        // To use when the user selects a song
+        private Song song;
+
         public SongViewHolder(View itemView) {
             super(itemView);
 
@@ -66,6 +67,14 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
             tvDuration = (TextView) itemView.findViewById(R.id.tvDuration);
 
             itemView.setOnClickListener(this);
+        }
+
+        public void setData(Song song) {
+            this.song = song;
+
+            this.setName(song.getName());
+            this.setAuthor("Sora Amamiya");
+            this.setDuration("2:54");
         }
 
         public void setName(String name){
@@ -85,11 +94,13 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
 
         @Override
         public void onClick(View view) {
-            /*Intent i = new Intent(view.getContext(), TalkActivity.class);
+            Intent i = new Intent(view.getContext(), GameActivity.class);
+
             Bundle b = new Bundle();
-            b.putString("uid", uid);
+            b.putString("song", new Gson().toJson(song));
+
             i.putExtras(b);
-            view.getContext().startActivity(i);*/
+            view.getContext().startActivity(i);
         }
 
     }

@@ -2,4 +2,10 @@
     <string name="app_name">LyricsTraining</string>
 
     <string name="fragment_songs_title">Género musical</string>
+
+    <string name="song_name_placeholder">Nombre de la canción</string>
+
+    <string name="status_placeholder">Status</string>
+    <string name="status_loading">Cargando &#8230;</string>
+    <string name="status_playing">Reproduciendo</string>
 </resources>
