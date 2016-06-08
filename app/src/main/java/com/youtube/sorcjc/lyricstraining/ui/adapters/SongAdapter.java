@@ -73,8 +73,8 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
             this.song = song;
 
             this.setName(song.getName());
-            this.setAuthor("Sora Amamiya");
-            this.setDuration("2:54");
+            this.setAuthor(song.getAuthor());
+            this.setDuration(song.getDuration());
         }
 
         public void setName(String name){

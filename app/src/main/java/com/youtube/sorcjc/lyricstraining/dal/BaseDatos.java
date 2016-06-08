@@ -1,21 +1,12 @@
 package com.youtube.sorcjc.lyricstraining.dal;
 
-import android.os.Bundle;
-import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.view.Menu;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
-import android.widget.Toast;
 
 import com.youtube.sorcjc.lyricstraining.domain.Song;
 
-import java.lang.reflect.Array;
-import java.text.ParseException;
 import java.util.ArrayList;
 
 public class BaseDatos{
@@ -120,7 +111,7 @@ public class BaseDatos{
 			do {
 				tempSong = new Song();
 					tempSong.setId(Integer.parseInt(todasFilas.getString(cids)));
-					tempSong.setArchivo(todasFilas.getString(carc));
+					tempSong.setFileName(todasFilas.getString(carc));
 					tempSong.setName(todasFilas.getString(cnom));
 				arrlstSong.add(tempSong);
 			}while(todasFilas.moveToNext());

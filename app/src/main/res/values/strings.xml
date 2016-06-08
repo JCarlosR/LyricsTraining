@@ -8,4 +8,13 @@
     <string name="status_placeholder">Status</string>
     <string name="status_loading">Cargando &#8230;</string>
     <string name="status_playing">Reproduciendo</string>
+
+    <!-- GameActivity-->
+    <string name="exit_dialog_title">Cerrar juego</string>
+    <string name="exit_dialog_message">Desea salir del juego? No se guardará ningún puntaje !</string>
+    <string name="yes_option">Salir</string>
+    <string name="no_option">Continuar jugando</string>
+    <string name="default_start_time">0:00</string>
+    <string name="default_final_time">X:YZ</string>
+
 </resources>

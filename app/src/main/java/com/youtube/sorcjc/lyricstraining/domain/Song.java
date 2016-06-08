@@ -12,7 +12,18 @@ public class Song {
     private String name;
 
     @SerializedName("archivo")
-    private String archivo;
+    private String fileName;
+
+    @SerializedName("autor")
+    private String author;
+
+    @SerializedName("duracion")
+    private String duration;
+
+    @Override
+    public String toString() {
+        return this.name;
+    }
 
     public int getId() {
         return id;
@@ -30,17 +41,27 @@ public class Song {
         this.name = name;
     }
 
-    public String getArchivo() {
-        return archivo;
+    public String getFileName() {
+        return fileName;
     }
 
-    public void setArchivo(String archivo) {
-        this.archivo = archivo;
+    public void setFileName(String archivo) {
+        this.fileName = archivo;
     }
 
-    @Override
-    public String toString() {
-        return this.name;
+    public String getAuthor() {
+        return author;
     }
 
+    public void setAuthor(String author) {
+        this.author = author;
+    }
+
+    public String getDuration() {
+        return duration;
+    }
+
+    public void setDuration(String duration) {
+        this.duration = duration;
+    }
 }
