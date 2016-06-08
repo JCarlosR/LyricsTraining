@@ -12,13 +12,24 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.youtube.sorcjc.lyricstraining.R;
+import com.youtube.sorcjc.lyricstraining.domain.Lyric;
 import com.youtube.sorcjc.lyricstraining.domain.Song;
+import com.youtube.sorcjc.lyricstraining.io.LyricsTrainingApiAdapter;
+import com.youtube.sorcjc.lyricstraining.io.responses.LyricsResponse;
+import com.youtube.sorcjc.lyricstraining.io.responses.SongsResponse;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
+
+import retrofit.Call;
+import retrofit.Callback;
+import retrofit.Response;
+import retrofit.Retrofit;
 
 public class GameActivity extends AppCompatActivity implements View.OnClickListener, MediaPlayer.OnPreparedListener, MediaPlayer.OnBufferingUpdateListener {
 
@@ -34,6 +45,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     private TextView tvStatus;
     private SeekBar seekBar;
     private TextView tvStartTime, tvFinalTime;
+    private TextView tvLyric;
 
     // Media player
     private MediaPlayer mediaPlayer;
@@ -42,12 +54,17 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     // Current position
     private static double startTime, finalTime;
 
+    // Lyrics data
+    private ArrayList<Lyric> lyrics;
+    private static int currentLyricId = -1;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
 
         fetchBundleData();
+        loadLyrics();
 
         tvName = (TextView) findViewById(R.id.tvName);
         tvName.setText(song.getName());
@@ -56,6 +73,8 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         seekBar = (SeekBar) findViewById(R.id.seekBar);
         tvStartTime = (TextView) findViewById(R.id.tvStartTime);
         tvFinalTime = (TextView) findViewById(R.id.tvFinalTime);
+
+        tvLyric = (TextView) findViewById(R.id.tvLyric);
 
         btnPlay = (ImageButton) findViewById(R.id.btnPlay);
         if (btnPlay != null)
@@ -122,7 +141,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     private Runnable UpdateSongTime = new Runnable() {
         public void run() {
             startTime = mediaPlayer.getCurrentPosition();
-            tvStartTime.setText(formatTime(startTime));
+            final String formatStartTime = formatTime(startTime);
+            tvStartTime.setText(formatStartTime);
+            updateLyric(formatStartTime);
             seekBar.setProgress((int)startTime);
             myHandler.postDelayed(this, 100);
         }
@@ -160,5 +181,47 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         seekBar.setSecondaryProgress(percent * (int) finalTime / 100);
         // Log.d(TAG, "Percent buffer: " + percent);
         // Log.d(TAG, "Start time: " + startTime);
+    }
+
+    public void loadLyrics() {
+        // Perform a request
+        Call<LyricsResponse> call = LyricsTrainingApiAdapter.getApiService().getLyricsResponse(song.getId());
+
+        // Async callback
+        call.enqueue(new Callback<LyricsResponse>() {
+            @Override
+            public void onResponse(Response<LyricsResponse> response, Retrofit retrofit) {
+                if (response != null) {
+                    lyrics = response.body().getLyrics();
+
+                    if (lyrics == null) {
+                        Log.d(TAG, "No se encontró la letra de la canción => " + song.getId());
+                        return;
+                    }
+                    Log.d(TAG, "Cantidad de frases => " + lyrics.size());
+                    // Ready to show lyrics according to the music advance
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                Toast.makeText(getBaseContext(), t.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void updateLyric(final String formatTime) {
+        if (lyrics == null)
+            return;
+
+        for (Lyric lyric : lyrics) {
+            // We have to display the proper phrase
+            if (lyric.getStart().equals(formatTime)) {
+                if (lyric.getId()  != currentLyricId) { // To avoid extra updates in UI
+                    tvLyric.setText(lyric.getPhrase());
+                    currentLyricId = lyric.getId();
+                }
+            }
+        }
     }
 }

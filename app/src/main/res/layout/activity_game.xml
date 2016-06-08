@@ -3,25 +3,25 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="@dimen/activity_vertical_margin"
     android:orientation="vertical"
+    android:padding="@dimen/activity_vertical_margin"
     tools:context="com.youtube.sorcjc.lyricstraining.ui.GameActivity">
 
     <TextView
         android:id="@+id/tvName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="18dp"
         android:gravity="center"
         android:text="@string/song_name_placeholder"
-        android:layout_marginBottom="18dp"
-        android:textSize="@dimen/font_size_title"/>
+        android:textSize="@dimen/font_size_title" />
 
     <ImageButton
         android:id="@+id/btnPlay"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:src="@drawable/play_sound"/>
+        android:src="@drawable/play_sound" />
 
     <TextView
         android:id="@+id/tvStatus"
@@ -29,7 +29,7 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:text="@string/status_placeholder"
-        android:textSize="@dimen/font_size_normal"/>
+        android:textSize="@dimen/font_size_normal" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -40,21 +40,30 @@
             android:id="@+id/tvStartTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="@string/default_start_time"/>
+            android:text="@string/default_start_time"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <SeekBar
             android:id="@+id/seekBar"
             android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
 
         <TextView
             android:id="@+id/tvFinalTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="@string/default_final_time"/>
+            android:text="@string/default_final_time"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvLyric"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:gravity="center"
+        android:text="@string/default_lyrics"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
 
 </LinearLayout>

@@ -16,5 +16,6 @@
     <string name="no_option">Continuar jugando</string>
     <string name="default_start_time">0:00</string>
     <string name="default_final_time">X:YZ</string>
+    <string name="default_lyrics">La paciencia es una virtud</string>
 
 </resources>
