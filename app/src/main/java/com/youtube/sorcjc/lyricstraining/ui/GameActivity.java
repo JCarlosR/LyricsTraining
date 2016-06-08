@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
@@ -19,9 +20,10 @@ import com.youtube.sorcjc.lyricstraining.domain.Song;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
-public class GameActivity extends AppCompatActivity implements View.OnClickListener, MediaPlayer.OnPreparedListener {
+public class GameActivity extends AppCompatActivity implements View.OnClickListener, MediaPlayer.OnPreparedListener, MediaPlayer.OnBufferingUpdateListener {
 
     private static final String URL_SONG_BASE = "http://redemnorte.pe/wslyrics/music/";
+    private static final String TAG = "GameActivity";
 
     // Selected song
     private Song song;
@@ -74,6 +76,8 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         mediaPlayer = new MediaPlayer();
         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
         mediaPlayer.setOnPreparedListener(this);
+        // To manage the buffer progress
+        mediaPlayer.setOnBufferingUpdateListener(this);
     }
 
     @Override
@@ -124,7 +128,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         }
     };
 
-
     @Override
     public void onBackPressed() {
         new AlertDialog.Builder(this)
@@ -149,5 +152,12 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             mediaPlayer.release();
             mediaPlayer = null;
         }
+    }
+
+    @Override
+    public void onBufferingUpdate(MediaPlayer mediaPlayer, int percent) {
+        seekBar.setSecondaryProgress(percent * (int) finalTime / 100);
+        // Log.d(TAG, "Percent buffer: " + percent);
+        // Log.d(TAG, "Start time: " + startTime);
     }
 }
