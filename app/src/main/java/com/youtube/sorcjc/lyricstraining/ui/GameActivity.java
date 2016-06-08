@@ -148,6 +148,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
     private void stopMediaPlayer() {
         if (mediaPlayer != null) {
+            myHandler.removeCallbacks(UpdateSongTime);
             if (mediaPlayer.isPlaying()) mediaPlayer.stop();
             mediaPlayer.release();
             mediaPlayer = null;
