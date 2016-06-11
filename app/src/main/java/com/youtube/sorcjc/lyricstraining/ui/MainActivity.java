@@ -1,5 +1,6 @@
 package com.youtube.sorcjc.lyricstraining.ui;
 
+import android.content.Context;
 import android.net.Uri;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -30,12 +31,13 @@ public class MainActivity extends AppCompatActivity implements SongsFragment.OnF
     private Toolbar toolbar;
     private TabLayout tabLayout;
     private ViewPager viewPager;
+    private Context contexto;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        contexto = this;
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -48,7 +50,7 @@ public class MainActivity extends AppCompatActivity implements SongsFragment.OnF
 
     private void genresRequest() {
         // Load genres data from the webservice
-        Call<GenresResponse> call = LyricsTrainingApiAdapter.getApiService().getGenresResponse();
+        Call<GenresResponse> call = LyricsTrainingApiAdapter.getApiService(contexto).getGenresResponse();
         Log.d("Test/Main", "Se lanzó el llamado al WS");
 
         // Async callback
@@ -77,7 +79,7 @@ public class MainActivity extends AppCompatActivity implements SongsFragment.OnF
 
         // Add each genre like a fragment
         for (Genre genre : genres) {
-            adapter.addFrag(SongsFragment.newInstance(genre.getName(), genre.getId()), genre.toString());
+            adapter.addFrag(SongsFragment.newInstance(genre.getName(), genre.getId(),contexto), genre.toString());
         }
 
         viewPager.setAdapter(adapter);

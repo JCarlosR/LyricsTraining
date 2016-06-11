@@ -50,6 +50,7 @@ public class SongsFragment extends Fragment {
     private SongAdapter songAdapter;
 
     private OnFragmentInteractionListener mListener;
+    private static Context contexto;
 
     public SongsFragment() {
         // Required empty public constructor
@@ -64,12 +65,12 @@ public class SongsFragment extends Fragment {
      * @return A new instance of fragment SongsFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static SongsFragment newInstance(String param1, int genreId) {
+    public static SongsFragment newInstance(String param1, int genreId, Context ctx) {
         SongsFragment fragment = new SongsFragment();
-
         Bundle args = new Bundle();
         args.putString(ARG_GENRE_NAME, param1);
         args.putInt(ARG_GENRE_ID, genreId);
+        contexto = ctx;
         fragment.setArguments(args);
 
         return fragment;
@@ -83,7 +84,6 @@ public class SongsFragment extends Fragment {
             mGenreName = getArguments().getString(ARG_GENRE_NAME);
             mGenreId = getArguments().getInt(ARG_GENRE_ID);
         }
-
         songAdapter = new SongAdapter(getActivity());
     }
 
@@ -115,7 +115,7 @@ public class SongsFragment extends Fragment {
 
     public void loadSongs() {
         // Perform a request
-        Call<SongsResponse> call = LyricsTrainingApiAdapter.getApiService().getSongsResponse(mGenreId);
+        Call<SongsResponse> call = LyricsTrainingApiAdapter.getApiService(contexto).getSongsResponse(mGenreId);
 
         // Async callback
         call.enqueue(new Callback<SongsResponse>() {

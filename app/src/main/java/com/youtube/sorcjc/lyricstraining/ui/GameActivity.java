@@ -1,5 +1,6 @@
 package com.youtube.sorcjc.lyricstraining.ui;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -18,6 +19,7 @@ import com.google.gson.Gson;
 import com.youtube.sorcjc.lyricstraining.R;
 import com.youtube.sorcjc.lyricstraining.domain.Lyric;
 import com.youtube.sorcjc.lyricstraining.domain.Song;
+import com.youtube.sorcjc.lyricstraining.global.Utilitario;
 import com.youtube.sorcjc.lyricstraining.io.LyricsTrainingApiAdapter;
 import com.youtube.sorcjc.lyricstraining.io.responses.LyricsResponse;
 import com.youtube.sorcjc.lyricstraining.io.responses.SongsResponse;
@@ -33,7 +35,8 @@ import retrofit.Retrofit;
 
 public class GameActivity extends AppCompatActivity implements View.OnClickListener, MediaPlayer.OnPreparedListener, MediaPlayer.OnBufferingUpdateListener {
 
-    private static final String URL_SONG_BASE = "http://redemnorte.pe/wslyrics/music/";
+
+    //private static final String URL_SONG_BASE = "http://redemnorte.pe/wslyrics/music/";
     private static final String TAG = "GameActivity";
 
     // Selected song
@@ -46,7 +49,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     private SeekBar seekBar;
     private TextView tvStartTime, tvFinalTime;
     private TextView tvLyric;
-
+    private Context contexto;
     // Media player
     private MediaPlayer mediaPlayer;
     // To update the seekBar
@@ -62,10 +65,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
-
+        contexto = this;
         fetchBundleData();
         loadLyrics();
-
         tvName = (TextView) findViewById(R.id.tvName);
         tvName.setText(song.getName());
 
@@ -103,7 +105,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.btnPlay:
-                final String url = URL_SONG_BASE + song.getFileName();
+                String url1;
+                url1= Utilitario.readProperties(contexto).getProperty("IP_SERVER");
+                final String url = url1+"music/" + song.getFileName();
 
                 try {
                     mediaPlayer.setDataSource(url);
@@ -185,7 +189,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
     public void loadLyrics() {
         // Perform a request
-        Call<LyricsResponse> call = LyricsTrainingApiAdapter.getApiService().getLyricsResponse(song.getId());
+        Call<LyricsResponse> call = LyricsTrainingApiAdapter.getApiService(contexto).getLyricsResponse(song.getId());
 
         // Async callback
         call.enqueue(new Callback<LyricsResponse>() {
