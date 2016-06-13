@@ -66,4 +66,9 @@
         android:text="@string/default_lyrics"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
+    <EditText
+        android:id="@+id/etInput"
+        android:inputType="text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 </LinearLayout>

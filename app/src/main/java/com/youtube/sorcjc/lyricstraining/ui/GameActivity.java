@@ -8,6 +8,7 @@ import android.os.Handler;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
@@ -22,16 +23,17 @@ import com.youtube.sorcjc.lyricstraining.domain.Song;
 import com.youtube.sorcjc.lyricstraining.global.Utilitario;
 import com.youtube.sorcjc.lyricstraining.io.LyricsTrainingApiAdapter;
 import com.youtube.sorcjc.lyricstraining.io.responses.LyricsResponse;
-import com.youtube.sorcjc.lyricstraining.io.responses.SongsResponse;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import retrofit.Call;
 import retrofit.Callback;
 import retrofit.Response;
 import retrofit.Retrofit;
+
 
 public class GameActivity extends AppCompatActivity implements View.OnClickListener, MediaPlayer.OnPreparedListener, MediaPlayer.OnBufferingUpdateListener {
 
@@ -49,7 +51,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     private SeekBar seekBar;
     private TextView tvStartTime, tvFinalTime;
     private TextView tvLyric;
-    private Context contexto;
+    private Context context;
     // Media player
     private MediaPlayer mediaPlayer;
     // To update the seekBar
@@ -61,13 +63,20 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     private ArrayList<Lyric> lyrics;
     private static int currentLyricId = -1;
 
+    // Selected words for the game
+    private ArrayList<String> selectedWords;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
-        contexto = this;
+
+        context = this;
+        selectedWords = new ArrayList<>();
+
         fetchBundleData();
         loadLyrics();
+
         tvName = (TextView) findViewById(R.id.tvName);
         tvName.setText(song.getName());
 
@@ -105,9 +114,12 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.btnPlay:
-                String url1;
-                url1= Utilitario.readProperties(contexto).getProperty("IP_SERVER");
-                final String url = url1+"music/" + song.getFileName();
+                // Avoid problems
+                if (mediaPlayer.isPlaying())
+                    return;
+
+                String url_base = Utilitario.readProperties(context).getProperty("IP_SERVER");
+                final String url = url_base+"music/" + song.getFileName();
 
                 try {
                     mediaPlayer.setDataSource(url);
@@ -136,10 +148,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private String formatTime(final double time) {
-        return String.format("%d:%d",
-                TimeUnit.MILLISECONDS.toMinutes((long) time),
-                TimeUnit.MILLISECONDS.toSeconds((long) time) -
-                        TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) time)));
+        long minutes = TimeUnit.MILLISECONDS.toMinutes((long) time);
+        long seconds = TimeUnit.MILLISECONDS.toSeconds((long) time) - TimeUnit.MINUTES.toSeconds(minutes);
+        return minutes + ":" + (seconds<=9 ? "0"+seconds : seconds);
     }
 
     private Runnable UpdateSongTime = new Runnable() {
@@ -189,7 +200,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
     public void loadLyrics() {
         // Perform a request
-        Call<LyricsResponse> call = LyricsTrainingApiAdapter.getApiService(contexto).getLyricsResponse(song.getId());
+        Call<LyricsResponse> call = LyricsTrainingApiAdapter.getApiService(context).getLyricsResponse(song.getId());
 
         // Async callback
         call.enqueue(new Callback<LyricsResponse>() {
@@ -202,8 +213,11 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                         Log.d(TAG, "No se encontró la letra de la canción => " + song.getId());
                         return;
                     }
-                    Log.d(TAG, "Cantidad de frases => " + lyrics.size());
-                    // Ready to show lyrics according to the music advance
+
+                    Log.d(TAG, "Lyrics array length => " + lyrics.size());
+
+                    // Select some words and replace with *s
+                    selectAndReplaceRandomWords();
                 }
             }
 
@@ -214,6 +228,23 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         });
     }
 
+    private void selectAndReplaceRandomWords() {
+        if (lyrics == null || lyrics.isEmpty())
+            return;
+
+        Random random = new Random();
+        for (Lyric lyric : lyrics) {
+            String phrase = lyric.getPhrase().trim();
+            String[] words = phrase.split(" ");
+            int wordsNumber = words.length;
+            int randomPosition = random.nextInt(wordsNumber);
+            selectedWords.add(words[randomPosition]);
+            int charsNumber = words[randomPosition].length();
+            words[randomPosition] = new String(new char[charsNumber]).replace("\0", "*");;
+            lyric.setPhrase(TextUtils.join(" ", words));
+        }
+    }
+
     private void updateLyric(final String formatTime) {
         if (lyrics == null)
             return;
@@ -221,7 +252,8 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         for (Lyric lyric : lyrics) {
             // We have to display the proper phrase
             if (lyric.getStart().equals(formatTime)) {
-                if (lyric.getId()  != currentLyricId) { // To avoid extra updates in UI
+                // To avoid extra updates in UI
+                if (lyric.getId()  != currentLyricId) {
                     tvLyric.setText(lyric.getPhrase());
                     currentLyricId = lyric.getId();
                 }
