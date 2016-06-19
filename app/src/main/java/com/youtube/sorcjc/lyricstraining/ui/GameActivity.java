@@ -4,14 +4,16 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.os.Bundle;
 import android.os.Handler;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -26,7 +28,6 @@ import com.youtube.sorcjc.lyricstraining.io.responses.LyricsResponse;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import retrofit.Call;
@@ -38,7 +39,7 @@ import retrofit.Retrofit;
 public class GameActivity extends AppCompatActivity implements View.OnClickListener, MediaPlayer.OnPreparedListener, MediaPlayer.OnBufferingUpdateListener {
 
 
-    //private static final String URL_SONG_BASE = "http://redemnorte.pe/wslyrics/music/";
+    private static String URL_SONG_BASE = null;
     private static final String TAG = "GameActivity";
 
     // Selected song
@@ -46,7 +47,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
     // UI components
     private TextView tvName;
-    private ImageButton btnPlay;
+    private ImageView btnPlay;
     private TextView tvStatus;
     private SeekBar seekBar;
     private TextView tvStartTime, tvFinalTime;
@@ -61,18 +62,20 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
     // Lyrics data
     private ArrayList<Lyric> lyrics;
-    private static int currentLyricId = -1;
-
-    // Selected words for the game
-    private ArrayList<String> selectedWords;
+    private static int currentLyric = -1;
+    private static double checkPoint = 0;
+    private static boolean isPlaying = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
 
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null)
+            actionBar.setDisplayHomeAsUpEnabled(true);
+
         context = this;
-        selectedWords = new ArrayList<>();
 
         fetchBundleData();
         loadLyrics();
@@ -87,7 +90,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
         tvLyric = (TextView) findViewById(R.id.tvLyric);
 
-        btnPlay = (ImageButton) findViewById(R.id.btnPlay);
+        btnPlay = (ImageView) findViewById(R.id.btnPlay);
         if (btnPlay != null)
             btnPlay.setOnClickListener(this);
 
@@ -114,15 +117,31 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.btnPlay:
-                // Avoid problems
-                if (mediaPlayer.isPlaying())
-                    return;
 
-                String url_base = Utilitario.readProperties(context).getProperty("IP_SERVER");
-                final String url = url_base+"music/" + song.getFileName();
+                // To avoid problems when it is playing right now
+                if (isPlaying) { // the isPlaying method returns TRUE when paused
+                    Log.d(TAG, "Nothing to do here !");
+                    return;
+                }
+
+                if (checkPoint != 0) { // If exist an advance, just resume
+                    mediaPlayer.seekTo((int) checkPoint);
+                    mediaPlayer.start();
+                    isPlaying = true;
+                    return;
+                }
+
+                Log.d(TAG, "Media player will be prepared");
+                isPlaying = true;
+
+                // Read the url base property the first time
+                if (URL_SONG_BASE == null) {
+                    URL_SONG_BASE = Utilitario.readProperties(context).getProperty("IP_SERVER");
+                    URL_SONG_BASE += "music/" + song.getFileName();
+                }
 
                 try {
-                    mediaPlayer.setDataSource(url);
+                    mediaPlayer.setDataSource(URL_SONG_BASE);
                 } catch (IOException e) {
                     // The file doesn't exist
                     e.printStackTrace();
@@ -232,16 +251,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         if (lyrics == null || lyrics.isEmpty())
             return;
 
-        Random random = new Random();
-        for (Lyric lyric : lyrics) {
-            String phrase = lyric.getPhrase().trim();
-            String[] words = phrase.split(" ");
-            int wordsNumber = words.length;
-            int randomPosition = random.nextInt(wordsNumber);
-            selectedWords.add(words[randomPosition]);
-            int charsNumber = words[randomPosition].length();
-            words[randomPosition] = new String(new char[charsNumber]).replace("\0", "*");;
-            lyric.setPhrase(TextUtils.join(" ", words));
+        for (int i=0; i<lyrics.size(); ++i) {
+            if (i%2==1)
+                lyrics.get(i).selectRandomWord();
         }
     }
 
@@ -249,15 +261,44 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         if (lyrics == null)
             return;
 
-        for (Lyric lyric : lyrics) {
-            // We have to display the proper phrase
+        for (int i=currentLyric+1; i<lyrics.size(); ++i) {
+            // We have to display the proper phrase when its time arrive
+            Lyric lyric = lyrics.get(i);
             if (lyric.getStart().equals(formatTime)) {
-                // To avoid extra updates in UI
-                if (lyric.getId()  != currentLyricId) {
-                    tvLyric.setText(lyric.getPhrase());
-                    currentLyricId = lyric.getId();
+                // To avoid additional UI updates
+                if (i != currentLyric) {
+                    // A change is needed
+                    if (inputWordIsCorrect()) {
+                        tvLyric.setText(lyric.getPhrase());
+                        currentLyric = i;
+                        checkPoint = mediaPlayer.getCurrentPosition();
+                        // Continue :D
+                        if (! isPlaying) {
+                            mediaPlayer.start();
+                            isPlaying = true;
+                        }
+                    } else {
+                        mediaPlayer.pause();
+                        isPlaying = false;
+                    }
                 }
             }
         }
+
+    }
+
+    private boolean inputWordIsCorrect() {
+        if (currentLyric == -1) return true; // Nothing to compare
+
+        final EditText etInput = (EditText) findViewById(R.id.etInput);
+        if (etInput == null) return false;
+
+        Lyric lyric = lyrics.get(currentLyric);
+        if (! lyric.hasSelectedWord()) return true; // Nothing to compare
+
+        String input = etInput.getText().toString().trim();
+        Log.d(TAG, "Input word => " + input);
+        Log.d(TAG, "Selected word => " + lyric.getSelectedWord());
+        return lyric.getSelectedWord().equals(input);
     }
 }
