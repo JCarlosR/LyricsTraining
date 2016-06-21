@@ -8,10 +8,6 @@ import java.util.Random;
 
 public class Lyric {
 
-    public Lyric() {
-        this.id = -1;
-    }
-
     // {"id":"1","start":"0:00","end":"0:12","phrase":"Tonight I'm gonna have myself a real good time "}
     @SerializedName("id")
     private int id;
@@ -27,6 +23,18 @@ public class Lyric {
 
     // Use "transient" to exclude from deserialization
     private transient String selectedWord = null;
+
+    // Used to calculate the score
+    private boolean good = false;
+    private boolean bad = false;
+
+    public void setGood(boolean value) {
+        this.good = value;
+    }
+
+    public void setBad(boolean value) {
+        this.bad = value;
+    }
 
     public int getId() {
         return id;
@@ -79,5 +87,13 @@ public class Lyric {
         this.selectedWord = words[randomPosition];
         words[randomPosition] = new String(new char[charsNumber]).replace("\0", "*");;
         this.phrase = TextUtils.join(" ", words);
+    }
+
+    public boolean isGood() {
+        return good;
+    }
+
+    public boolean isBad() {
+        return bad;
     }
 }

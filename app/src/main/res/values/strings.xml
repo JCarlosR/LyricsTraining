@@ -18,4 +18,10 @@
     <string name="default_final_time">X:YZ</string>
     <string name="default_lyrics">La paciencia es una virtud</string>
 
+    <string name="score_dialog_title">Fin del juego</string>
+    <string name="score_yes_option">Buscar otra canción</string>
+    <string name="score_no_option">Repetir</string>
+
+    <string name="press_again">Presione el botón cuando esté listo</string>
+
 </resources>

@@ -36,7 +36,7 @@ import retrofit.Response;
 import retrofit.Retrofit;
 
 
-public class GameActivity extends AppCompatActivity implements View.OnClickListener, MediaPlayer.OnPreparedListener, MediaPlayer.OnBufferingUpdateListener {
+public class GameActivity extends AppCompatActivity implements View.OnClickListener, MediaPlayer.OnPreparedListener, MediaPlayer.OnBufferingUpdateListener, MediaPlayer.OnCompletionListener {
 
 
     private static String URL_SONG_BASE = null;
@@ -52,6 +52,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     private SeekBar seekBar;
     private TextView tvStartTime, tvFinalTime;
     private TextView tvLyric;
+    private EditText etInput;
     private Context context;
     // Media player
     private MediaPlayer mediaPlayer;
@@ -64,7 +65,11 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     private ArrayList<Lyric> lyrics;
     private static int currentLyric = -1;
     private static double checkPoint = 0;
-    private static boolean isPlaying = false;
+    private static boolean isPlaying;
+
+    // Game score
+    // private static int good_answres;
+    // private static int bad_answers;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,6 +81,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             actionBar.setDisplayHomeAsUpEnabled(true);
 
         context = this;
+        isPlaying = false;
 
         fetchBundleData();
         loadLyrics();
@@ -89,6 +95,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         tvFinalTime = (TextView) findViewById(R.id.tvFinalTime);
 
         tvLyric = (TextView) findViewById(R.id.tvLyric);
+        etInput = (EditText) findViewById(R.id.etInput);
 
         btnPlay = (ImageView) findViewById(R.id.btnPlay);
         if (btnPlay != null)
@@ -109,6 +116,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         mediaPlayer = new MediaPlayer();
         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
         mediaPlayer.setOnPreparedListener(this);
+        mediaPlayer.setOnCompletionListener(this);
         // To manage the buffer progress
         mediaPlayer.setOnBufferingUpdateListener(this);
     }
@@ -252,7 +260,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             return;
 
         for (int i=0; i<lyrics.size(); ++i) {
-            if (i%2==1)
+            if (i%3==1)
                 lyrics.get(i).selectRandomWord();
         }
     }
@@ -277,9 +285,12 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                             mediaPlayer.start();
                             isPlaying = true;
                         }
+                        etInput.setText("");
+                        lyrics.get(currentLyric).setGood(true);
                     } else {
                         mediaPlayer.pause();
                         isPlaying = false;
+                        lyrics.get(currentLyric).setBad(true);
                     }
                 }
             }
@@ -290,7 +301,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     private boolean inputWordIsCorrect() {
         if (currentLyric == -1) return true; // Nothing to compare
 
-        final EditText etInput = (EditText) findViewById(R.id.etInput);
         if (etInput == null) return false;
 
         Lyric lyric = lyrics.get(currentLyric);
@@ -301,4 +311,42 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         Log.d(TAG, "Selected word => " + lyric.getSelectedWord());
         return lyric.getSelectedWord().equals(input);
     }
+
+    @Override
+    public void onCompletion(MediaPlayer mediaPlayer) {
+        int good_answers = 0, bad_answers = 0;
+        // The mistakes just count one time
+        for (Lyric lyric : lyrics) {
+            if (lyric.isGood()) ++good_answers;
+            if (lyric.isBad()) ++bad_answers;
+        }
+        int points = 5 * good_answers - 2 * bad_answers;
+        String message = "Genial, usted obtuvo una puntuación de "+points+" puntos !";
+        new AlertDialog.Builder(this, android.R.style.Theme_DeviceDefault_Light_NoActionBar_Fullscreen)
+                .setTitle(R.string.score_dialog_title)
+                .setMessage(message)
+                .setPositiveButton(R.string.score_yes_option, new DialogInterface.OnClickListener()
+                {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        stopMediaPlayer();
+                        finish();
+                    }
+                })
+                .setNegativeButton(R.string.score_no_option, new DialogInterface.OnClickListener()
+                {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Toast.makeText(getBaseContext(), R.string.press_again, Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .show();
+
+        resetGame();
+    }
+
+    private void resetGame() {
+        mediaPlayer.seekTo(0);
+    }
+
 }
