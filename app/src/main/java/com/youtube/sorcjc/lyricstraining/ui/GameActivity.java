@@ -321,7 +321,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         String input = etInput.getText().toString().trim();
         Log.d(TAG, "Input word => " + input);
         Log.d(TAG, "Selected word => " + lyric.getSelectedWord());
-        return lyric.getSelectedWord().equals(input);
+        return lyric.getSelectedWord().equalsIgnoreCase(input);
     }
 
     @Override
