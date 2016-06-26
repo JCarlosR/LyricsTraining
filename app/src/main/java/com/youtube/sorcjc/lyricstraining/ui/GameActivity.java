@@ -13,7 +13,6 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -154,11 +153,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 Log.d(TAG, "Media player will be prepared");
                 isPlaying = true;
 
-                // Read the url base property the first time
-                if (URL_SONG_BASE == null) {
-                    URL_SONG_BASE = Utilitario.readProperties(context).getProperty("IP_SERVER");
-                    URL_SONG_BASE += "music/" + song.getFileName();
-                }
+                // Read the url base from properties
+                URL_SONG_BASE = Utilitario.readProperties(context).getProperty("IP_SERVER");
+                URL_SONG_BASE += "music/" + song.getFileName();
 
                 try {
                     mediaPlayer.setDataSource(URL_SONG_BASE);
@@ -227,6 +224,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             if (mediaPlayer.isPlaying()) mediaPlayer.stop();
             mediaPlayer.release();
             mediaPlayer = null;
+            checkPoint = 0;
         }
     }
 
@@ -359,6 +357,8 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
     private void resetGame() {
         mediaPlayer.seekTo(0);
+        checkPoint = 0;
+        isPlaying = false;
     }
 
 }
