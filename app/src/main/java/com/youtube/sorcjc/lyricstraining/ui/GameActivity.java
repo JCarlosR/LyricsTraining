@@ -332,6 +332,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         }
         int points = 5 * good_answers - 2 * bad_answers;
         String message = "Genial, usted obtuvo una puntuación de "+points+" puntos !";
+
+        resetGame();
+
         new AlertDialog.Builder(this, android.R.style.Theme_DeviceDefault_Light_NoActionBar_Fullscreen)
                 .setTitle(R.string.score_dialog_title)
                 .setMessage(message)
@@ -351,14 +354,21 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                     }
                 })
                 .show();
-
-        resetGame();
     }
 
     private void resetGame() {
-        mediaPlayer.seekTo(0);
-        checkPoint = 0;
+        checkPoint = 1; // Don't use ZERO, because it will try to reload the dataSource
         isPlaying = false;
+
+        // To show all lyrics again
+        tvLyric.setText(R.string.default_lyrics);
+        currentLyric = -1;
+
+        // Reset good and bad answers
+        for (Lyric lyric : lyrics) {
+            lyric.setGood(false);
+            lyric.setBad(false);
+        }
     }
 
 }
