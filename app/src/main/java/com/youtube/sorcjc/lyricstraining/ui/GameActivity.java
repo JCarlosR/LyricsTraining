@@ -38,9 +38,8 @@ import retrofit.Retrofit;
 
 public class GameActivity extends AppCompatActivity implements View.OnClickListener, MediaPlayer.OnPreparedListener, MediaPlayer.OnBufferingUpdateListener, MediaPlayer.OnCompletionListener {
 
-
-    private static String URL_SONG_BASE = null;
     private static final String TAG = "GameActivity";
+    private static final int RANDOM_INTERVAL = 6;
 
     // Selected song
     private Song song;
@@ -67,9 +66,8 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     private static double checkPoint = 0;
     private static boolean isPlaying;
 
-    // Game score
-    // private static int good_answres;
-    // private static int bad_answers;
+    // Load the MP3 file just once
+    private boolean fileDownloaded = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -143,7 +141,8 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                     return;
                 }
 
-                if (checkPoint != 0) { // If exist an advance, just resume
+                if (fileDownloaded) {
+                    // When the file is already downloaded, just resume
                     mediaPlayer.seekTo((int) checkPoint);
                     mediaPlayer.start();
                     isPlaying = true;
@@ -152,9 +151,10 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
                 Log.d(TAG, "Media player will be prepared");
                 isPlaying = true;
+                fileDownloaded = true;
 
                 // Read the url base from properties
-                URL_SONG_BASE = Utilitario.readProperties(context).getProperty("IP_SERVER");
+                String URL_SONG_BASE = Utilitario.readProperties(context).getProperty("IP_SERVER");
                 URL_SONG_BASE += "music/" + song.getFileName();
 
                 try {
@@ -210,11 +210,27 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        String message = getScoreMessage();
                         stopMediaPlayer();
-                        finish();
+                        resetGame();
+                        showFinalMessage(message);
                     }
                 })
                 .setNegativeButton(R.string.no_option, null)
+                .show();
+    }
+
+    private void showFinalMessage(final String message) {
+        new AlertDialog.Builder(this, android.R.style.Theme_DeviceDefault_Light_NoActionBar_Fullscreen)
+                .setTitle(R.string.score_dialog_title)
+                .setMessage(message)
+                .setPositiveButton(R.string.score_yes_option, new DialogInterface.OnClickListener()
+                {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        finish();
+                    }
+                })
                 .show();
     }
 
@@ -224,7 +240,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             if (mediaPlayer.isPlaying()) mediaPlayer.stop();
             mediaPlayer.release();
             mediaPlayer = null;
-            checkPoint = 0;
         }
     }
 
@@ -270,7 +285,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             return;
 
         for (int i=0; i<lyrics.size(); ++i) {
-            if (i%3==1)
+            if (i%RANDOM_INTERVAL==1)
                 lyrics.get(i).selectRandomWord();
         }
     }
@@ -324,14 +339,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onCompletion(MediaPlayer mediaPlayer) {
-        int good_answers = 0, bad_answers = 0;
-        // The mistakes just count one time
-        for (Lyric lyric : lyrics) {
-            if (lyric.isGood()) ++good_answers;
-            if (lyric.isBad()) ++bad_answers;
-        }
-        int points = 5 * good_answers - 2 * bad_answers;
-        String message = "Genial, usted obtuvo una puntuación de "+points+" puntos !";
+        String message = getScoreMessage();
 
         resetGame();
 
@@ -356,8 +364,22 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 .show();
     }
 
+    private String getScoreMessage() {
+        int good_answers = 0, bad_answers = 0;
+
+        // The mistakes just count one time
+        for (Lyric lyric : lyrics) {
+            if (lyric.isGood()) ++good_answers;
+            if (lyric.isBad()) ++bad_answers;
+        }
+
+        int points = 5 * good_answers - 2 * bad_answers;
+        final String message = getResources().getString(R.string.score_result);
+        return message.replace("{points}", String.valueOf(points));
+    }
+
     private void resetGame() {
-        checkPoint = 1; // Don't use ZERO, because it will try to reload the dataSource
+        checkPoint = 0; // There's not a checkpoint
         isPlaying = false;
 
         // To show all lyrics again

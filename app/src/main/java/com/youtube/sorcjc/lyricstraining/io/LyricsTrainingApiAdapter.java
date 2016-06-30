@@ -21,7 +21,7 @@ public class LyricsTrainingApiAdapter {
         logging.setLevel(HttpLoggingInterceptor.Level.BODY);
 
         // Ruta global
-        String lsRuta= Utilitario.readProperties(ctx).getProperty("IP_SERVER");
+        String baseUrl = Utilitario.readProperties(ctx).getProperty("IP_SERVER");
 
         // Adding the interceptor to a client
         OkHttpClient httpClient = new OkHttpClient();
@@ -30,7 +30,7 @@ public class LyricsTrainingApiAdapter {
 
         if (API_SERVICE == null) {
             Retrofit retrofit = new Retrofit.Builder()
-                    .baseUrl(lsRuta)
+                    .baseUrl(baseUrl)
                     .addConverterFactory(buildGsonConverter())
                     .client(httpClient) // <-- using the log level
                     .build();
