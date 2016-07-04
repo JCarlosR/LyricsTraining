@@ -15,6 +15,7 @@ import com.google.gson.Gson;
 import com.youtube.sorcjc.lyricstraining.R;
 import com.youtube.sorcjc.lyricstraining.domain.Song;
 import com.youtube.sorcjc.lyricstraining.ui.GameActivity;
+import com.youtube.sorcjc.lyricstraining.ui.NivelActivity;
 
 import java.util.ArrayList;
 
@@ -94,11 +95,9 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
 
         @Override
         public void onClick(View view) {
-            Intent i = new Intent(view.getContext(), GameActivity.class);
-
+            Intent i = new Intent(view.getContext(), NivelActivity.class);
             Bundle b = new Bundle();
             b.putString("song", new Gson().toJson(song));
-
             i.putExtras(b);
             view.getContext().startActivity(i);
         }

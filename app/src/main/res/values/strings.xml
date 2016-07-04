@@ -18,6 +18,11 @@
     <string name="default_final_time">X:YZ</string>
     <string name="default_lyrics">La paciencia es una virtud</string>
 
+    <string name="noob_level">Nivel Fácil</string>
+    <string name="medium_level">Nivel Medio</string>
+    <string name="hard_level">Nivel Difícil</string>
+    <string name="expert_level">Nivel Experto</string>
+
     <string name="score_result">Genial, usted obtuvo una puntuación de {points} puntos !</string>
 
     <string name="score_dialog_title">Fin del juego</string>

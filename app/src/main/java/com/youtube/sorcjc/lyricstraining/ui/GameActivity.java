@@ -39,7 +39,7 @@ import retrofit.Retrofit;
 public class GameActivity extends AppCompatActivity implements View.OnClickListener, MediaPlayer.OnPreparedListener, MediaPlayer.OnBufferingUpdateListener, MediaPlayer.OnCompletionListener {
 
     private static final String TAG = "GameActivity";
-    private static final int RANDOM_INTERVAL = 6;
+    private int RANDOM_INTERVAL;
 
     // Selected song
     private Song song;
@@ -117,6 +117,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             final String songJSON = extras.getString("song");
+            RANDOM_INTERVAL = extras.getInt("nivel");
             song = new Gson().fromJson(songJSON, Song.class);
         }
     }
